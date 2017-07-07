@@ -1,5 +1,5 @@
 const React = require('react');
-const types = require('react').PropTypes;
+const propTypes = require('prop-types');
 const HomePage = require('./home_page');
 
 function isObject(obj) {
@@ -26,7 +26,7 @@ const PAGES = { HomePage };
 
 class Router extends React.Component {
   static propTypes = {
-    router: types.oneOfType([types.object, types.func])
+    router: propTypes.oneOfType([propTypes.object, propTypes.func])
   };
 
   constructor(props, context) {

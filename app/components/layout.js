@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
+import propTypes from 'prop-types'
 
 export default function Layout({config, children}) {
   const configJs = `window.${config.globalNamespace} = {animation: true, config: ${JSON.stringify(config)}}`;
@@ -16,7 +17,7 @@ export default function Layout({config, children}) {
 }
 
 Layout.propTypes = {
-  config: React.PropTypes.object.isRequired
+  config: propTypes.object.isRequired
 };
 
 Layout.metas = [
