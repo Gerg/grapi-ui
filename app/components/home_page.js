@@ -1,6 +1,7 @@
 const {Actions} = require('p-flux');
 const React = require('react');
 const propTypes = require('prop-types');
+const Viz = require('./viz');
 
 class HomePage extends React.Component {
   static propTypes = {
@@ -11,13 +12,18 @@ class HomePage extends React.Component {
   fetch = () => {
     Actions.fetchGrapi(this.props.accessToken);
   };
-
+  componentDidMount() {
+      this.fetch();
+  }
   render() {
-    const {root} = this.props;
+    const {accessToken, root} = this.props;
+    if (!accessToken) return null;
     return (
       <div className="api-page">
         <button onClick={this.fetch}>Click Me</button>
-        <div>{JSON.stringify(root)}</div>
+        <Viz data={root.data}/>
+
+
       </div>
     );
   }

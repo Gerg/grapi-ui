@@ -7,7 +7,7 @@ const FakePostsApi = {
     console.log({accessToken})
     const headers = {accept: 'application/json', 'Content-Type': 'application/graphql'};
     // const body = '{apps(limit: 100) {name, packages {guid, state}, processes {guid, instances, type}}}';
-    const body = '{apps {name, packages {guid, state}}}';
+    const body = '{apps {name, processes {guid, type, instances {actual_memory_mb}}, packages {guid, state}}}';
     return fetchJson(`${apiUrl}/graphql`, {accessToken, headers, method: 'POST', body});
   }
 };

@@ -24,6 +24,7 @@ class Application extends React.Component {
 
   render() {
     const {config, store, router, accessToken} = this.props;
+    if(!accessToken) return null;
     return (
       <div className="grapi">
         <Router {...{router, config, accessToken, ...store}}/>
