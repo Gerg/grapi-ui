@@ -1,9 +1,8 @@
 const GrapiApi = require('../api/grapi_api');
 
 const ApiDispatcher = {
-  fetchGrapi({data: accessToken}){
-    return GrapiApi.fetch(accessToken).then((data) => {
-      console.log("got some data", data);
+  fetchGrapi({data}){
+    return GrapiApi.fetch(data).then((data) => {
       this.dispatch({type: 'updateRoot', data});
     });
   },

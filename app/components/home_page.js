@@ -6,15 +6,19 @@ const Viz = require('./viz');
 class HomePage extends React.Component {
   static propTypes = {
     root: propTypes.any,
+    config: propTypes.object,
     accessToken: propTypes.string
   };
 
-  fetch = () => {
-    Actions.fetchGrapi(this.props.accessToken);
-  };
   componentDidMount() {
-      this.fetch();
+    this.fetch();
   }
+
+  fetch = () => {
+    const {config: {apiUrl}, accessToken} = this.props;
+    Actions.fetchGrapi({apiUrl, accessToken});
+  };
+
   render() {
     const {accessToken, root} = this.props;
     if (!accessToken) return null;
@@ -22,8 +26,6 @@ class HomePage extends React.Component {
       <div className="api-page">
         <button onClick={this.fetch}>Click Me</button>
         <Viz data={root.data}/>
-
-
       </div>
     );
   }

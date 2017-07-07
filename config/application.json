@@ -1,4 +1,7 @@
 {
   "globalNamespace": "MyReactStarter",
-  "title": "My React Starter"
+  "title": "My React Starter",
+  "apiUrl": "http://grapi.superman-lite.cf-app.com",
+  "uaaUrl": "uaa.superman-lite.cf-app.com",
+  "clientId": "hackday"
 }

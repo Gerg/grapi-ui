@@ -1,10 +1,7 @@
 const {fetchJson} = require('../../helpers/fetch_helper');
 
-const apiUrl = 'http://grapi.superman-lite.cf-app.com';
-
 const FakePostsApi = {
-  fetch(accessToken) {
-    console.log({accessToken})
+  fetch({accessToken, apiUrl}) {
     const headers = {accept: 'application/json', 'Content-Type': 'application/graphql'};
     // const body = '{apps(limit: 100) {name, packages {guid, state}, processes {guid, instances, type}}}';
     const body = '{apps {name, processes {guid, type, instances {actual_memory_mb}}, packages {guid, state}}}';

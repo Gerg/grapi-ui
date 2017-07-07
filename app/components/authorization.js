@@ -20,8 +20,7 @@ module.exports = {
       }
 
       componentDidMount() {
-        const clientId = 'hackday';
-        const uaaUrl = 'uaa.superman-lite.cf-app.com';
+        const {config: {clientId, uaaUrl}} = this.props;
 
         let {access_token: accessToken} = MyReactStarter.location.hash && qs.parse(MyReactStarter.location.hash.slice(1));
 
