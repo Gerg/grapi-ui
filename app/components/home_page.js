@@ -12,6 +12,13 @@ class HomePage extends React.Component {
 
   componentDidMount() {
     this.fetch();
+    setInterval(() => {
+      this.fetch();
+    }, 5000);
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return JSON.stringify(nextProps.root.data) !== JSON.stringify(this.props.root.data);
   }
 
   fetch = () => {
@@ -24,8 +31,9 @@ class HomePage extends React.Component {
     if (!accessToken) return null;
     return (
       <div className="api-page">
-        <button onClick={this.fetch}>Click Me</button>
         <Viz data={root.data}/>
+        <button onClick={this.fetch}>Refresh</button>
+        <pre>{JSON.stringify(root.data, undefined, 2)}</pre>
       </div>
     );
   }

@@ -4,26 +4,71 @@ import Graph from 'react-graph-vis'
 
 class Viz extends React.Component {
     render() {
-        let edges = [], nodes = [];
+        let edges = [], nodes = [], legendNodes = [], legendEdges =[];
         const {data = {apps: []}} = this.props;
         const {apps = []} = data;
         console.log({apps});
         if (!apps) return null;
-        apps.forEach(({name, processes}) => {
+        // Legend
+
+        legendNodes.push({id: 1, label: 'Application', level: 1});
+        legendNodes.push({id: 0, label: 'Process', level: 0, color: 'gold'});
+        legendNodes.push({id: -1, label: 'Instance', level: -1, color: 'darksalmon', shape: 'box'})
+        legendNodes.push({id: -2, label: 'Route', level: -2, shape: 'text'})
+        legendNodes.push({id: 2, label: 'Package', level: 2, shape: 'dot', color: 'saddlebrown', size: 10})
+        legendNodes.push({id: 3, label: 'Droplet', level: 3, shape: 'triangle', color: 'lightblue',})
+        legendNodes.push({id: 3.1, label: 'Current Droplet', level: 3, shape: 'triangle', color: 'cornflowerblue',})
+        // nodes.push({id: 2, label: 'Application'});
+        // nodes.push({id: 3, label: 'Application'});
+        // nodes.push({id: 4, label: 'Application'});
+
+        legendEdges.push({from: -2, to: 0})
+        legendEdges.push({from: 0, to: -1})
+        legendEdges.push({from: 1, to: 0})
+        legendEdges.push({from: 1, to: 2})
+        legendEdges.push({from: 1, to: 3})
+        legendEdges.push({from: 1, to: 3.1})
+        legendEdges.push({from: 3, to: 2})
+        legendEdges.push({from: 3.1, to: 2})
+        const legendGraph = {nodes: legendNodes, edges: legendEdges};
+        ///
+        apps.forEach(({name, processes, droplets, current_droplet, packages}) => {
             const appGuid = `app-${name}`
-            nodes.push({id: appGuid, label: `${name}`});
-            edges.push({from: 'account', to: appGuid})
-            processes.forEach(({guid, instances, type}) => {
-                nodes.push({id: guid, label: `processes ${type}`, color: 'gold'});
+
+            nodes.push({id: appGuid, label: `${name}`, title: 'Application', level: 1});
+            // edges.push({from: 'account', to: appGuid})
+            processes.forEach(({guid, instances, type, routes}) => {
+                const processGuid = guid;
+                nodes.push({id: guid, label: `processes ${type}`, color: 'gold', title: 'Process', level: 0});
                 edges.push({from: appGuid, to: guid});
+
                 instances.forEach(({actual_memory_mb}, index) => {
                     let instanceGuid = `instance-${index}-${guid}`;
-                    nodes.push({id: instanceGuid, label: `${actual_memory_mb} MB`, color: 'darksalmon', shape: 'box'});
+                    nodes.push({id: instanceGuid, label: `${actual_memory_mb} MB`, color: 'darksalmon', shape: 'box', level: -1});
                     edges.push({from: guid, to: instanceGuid});
                 });
+
+                routes.forEach(({host, domain}) => {
+                    const url = `${host}.${domain}`;
+                    nodes.push({id: url, label: url, level: -2, shape: 'text', color: 'green'});
+                    edges.push({to: processGuid, from: url});
+                });
             });
+
+            packages.filter(({state}) => state !== 'EXPIRED').forEach(({guid, state}) => {
+                nodes.push({id: guid, label: `package ${state}`, shape: 'dot', color: 'saddlebrown', size: 10, level: 2});
+                edges.push({from: appGuid, to: guid});
+            });
+            droplets.filter(({state}) => state !== 'EXPIRED').forEach(({guid, state, 'package': packageObj}) => {
+                const dropletColor = guid === current_droplet.guid ? 'cornflowerblue' : 'lightblue';
+                nodes.push({id: guid, label: `droplet ${state}`, shape: 'triangle', color: dropletColor, cid: appGuid, level: 3});
+                edges.push({from: appGuid, to: guid});
+                edges.push({from: guid, to: packageObj.guid});
+            });
+
+
         });
-        nodes.push({id: 'account', label: 'My Account', shape: 'star'})
+        // nodes.push({id: 'account', label: 'My Account', shape: 'star'})
         console.log({data, apps, nodes})
         let graph = {
             nodes: [
@@ -60,8 +105,14 @@ class Viz extends React.Component {
         };
         return (
             <div>
-                <Graph graph={graph} options={options} events={events} style={{ width: '1280x', height: '800px' }}/>
-                <pre>{JSON.stringify(data, undefined, 2)}</pre>
+                <h1>Grapi UI!</h1>
+                <div style={{display: 'flex'}}>
+                    <div>
+                        <h2>Legend</h2>
+                        <Graph graph={legendGraph} options={options} events={events} style={{ width: '80x', height: '800px', border: '1px solid black' }}/>
+                    </div>
+                    <Graph graph={graph} options={options} events={events} style={{ width: '1280x', height: '800px', flex: 1}}/>
+                </div>
             </div>
         );
     };
