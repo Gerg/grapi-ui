@@ -1,0 +1,5 @@
+---
+applications:
+  - name: grapi-ui
+    path: public
+    memory: 64MB
