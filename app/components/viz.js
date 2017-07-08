@@ -5,15 +5,15 @@ import Graph from 'react-graph-vis'
 class Viz extends React.Component {
     render() {
         let edges = [], nodes = [], legendNodes = [], legendEdges =[];
-        const {data = {apps: []}} = this.props;
-        const {apps = []} = data;
-        console.log({apps});
-        if (!apps) return null;
+        const {data = {apps: [], tasks: []}} = this.props;
+        const {apps = [], tasks = []} = data;
+        console.log({apps, tasks});
+        if (!apps || !tasks) return null;
         // Legend
 
         legendNodes.push({id: 1, label: 'Application', level: 1});
         legendNodes.push({id: 0, label: 'Process', level: 0, color: 'gold'});
-        legendNodes.push({id: -1, label: 'Instance', level: -1, color: 'darksalmon', shape: 'box'})
+        legendNodes.push({id: -1, label: 'Instance', level: -1, color: 'darksalmon', shape: 'dot', size: 12})
         legendNodes.push({id: -2, label: 'Route', level: -2, shape: 'text'})
         legendNodes.push({id: 2, label: 'Package', level: 2, shape: 'dot', color: 'saddlebrown', size: 10})
         legendNodes.push({id: 3, label: 'Droplet', level: 3, shape: 'triangle', color: 'lightblue',})
@@ -21,7 +21,8 @@ class Viz extends React.Component {
         // nodes.push({id: 2, label: 'Application'});
         // nodes.push({id: 3, label: 'Application'});
         // nodes.push({id: 4, label: 'Application'});
-
+        legendNodes.push({id: 4, label: 'Task', level: 4, shape: 'text'});
+        legendEdges.push({from: 4, to: 3.1});
         legendEdges.push({from: -2, to: 0})
         legendEdges.push({from: 0, to: -1})
         legendEdges.push({from: 1, to: 0})
@@ -42,9 +43,9 @@ class Viz extends React.Component {
                 nodes.push({id: guid, label: `processes ${type}`, color: 'gold', title: 'Process', level: 0});
                 edges.push({from: appGuid, to: guid});
 
-                instances.forEach(({actual_memory_mb}, index) => {
+                instances.forEach(({actual_memory_mb, index}) => {
                     let instanceGuid = `instance-${index}-${guid}`;
-                    nodes.push({id: instanceGuid, label: `${actual_memory_mb} MB`, color: 'darksalmon', shape: 'box', level: -1});
+                    nodes.push({id: instanceGuid, label: `instance: ${index} (${actual_memory_mb} MB)`, color: 'darksalmon', shape: 'dot', size: 12, level: -1});
                     edges.push({from: guid, to: instanceGuid});
                 });
 
@@ -60,13 +61,18 @@ class Viz extends React.Component {
                 edges.push({from: appGuid, to: guid});
             });
             droplets.filter(({state}) => state !== 'EXPIRED').forEach(({guid, state, 'package': packageObj}) => {
-                const dropletColor = guid === current_droplet.guid ? 'cornflowerblue' : 'lightblue';
+                const currentGuid = current_droplet && current_droplet.guid
+                const dropletColor = guid === currentGuid ? 'cornflowerblue' : 'lightblue';
                 nodes.push({id: guid, label: `droplet ${state}`, shape: 'triangle', color: dropletColor, cid: appGuid, level: 3});
                 edges.push({from: appGuid, to: guid});
                 edges.push({from: guid, to: packageObj.guid});
             });
+        });
 
-
+        tasks.forEach(({command, name, droplet}) => {
+            const taskGuid = command + name + droplet.guid;
+            nodes.push({id: taskGuid, label: command, level: 4, shape: 'text'});
+            edges.push({from: taskGuid, to: droplet.guid});
         });
         // nodes.push({id: 'account', label: 'My Account', shape: 'star'})
         console.log({data, apps, nodes})
@@ -91,13 +97,15 @@ class Viz extends React.Component {
 
         const options = {
             layout: {
-                hierarchical: true
+                hierarchical: {
+                    enabled: true,
+                    levelSeparation: 125,
+                }
             },
             edges: {
                 color: '#000000'
             }
         };
-
         const events = {
             select: function (event) {
                 const {nodes, edges} = event;
@@ -109,9 +117,9 @@ class Viz extends React.Component {
                 <div style={{display: 'flex'}}>
                     <div>
                         <h2>Legend</h2>
-                        <Graph graph={legendGraph} options={options} events={events} style={{ width: '80x', height: '800px', border: '1px solid black' }}/>
+                        <Graph graph={legendGraph} options={options} events={events} style={{ width: '80x', height: '950px', border: '1px solid black' }}/>
                     </div>
-                    <Graph graph={graph} options={options} events={events} style={{ width: '1280x', height: '800px', flex: 1}}/>
+                    <Graph graph={graph} options={options} events={events} style={{ width: '1280x', height: '950px', flex: 1}}/>
                 </div>
             </div>
         );
